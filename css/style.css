@@ -10,12 +10,17 @@
   opacity: 0.5;
 }
 
-/* line 24, ../sass/style.scss */
+/* line 23, ../sass/style.scss */
+.is-active {
+  color: red;
+}
+
+/* line 28, ../sass/style.scss */
 .is-add .m-cookie-list:first-of-type {
   opacity: 1;
 }
 
-/* line 30, ../sass/style.scss */
+/* line 34, ../sass/style.scss */
 .is-delete .m-cookie-list:last-of-type {
   opacity: 1;
 }

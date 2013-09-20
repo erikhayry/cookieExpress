@@ -8,11 +8,11 @@ var popUpTmpl = '<div ng-app="cookieExpressApp" ng-csp>' +
 						'<input class="m-form-value" ng-model="cookieValue" placeholder="Value" enter-submit>' +
 						'<h2>Add cookie</h2>' + 
 						'<ol class="m-cookie-list">' +
-							'<li class="m-cookie-list-item" ng-repeat="lCookie in localStorageCookies | filter:filterByKey">{{lCookie.html}}</li>' +
+							'<li class="m-cookie-list-item" ng-class="isActive($index)" ng-repeat="lCookie in localStorageCookies | filter:filterByKey">{{lCookie.html}}</li>' +
 						'</ol>' +
 						'<h2>Delete cookie</h2>' + 
 						'<ol class="m-cookie-list">' +
-							'<li class="m-cookie-list-item"ng-repeat="dCookie in documentCookies | filter:filterByName">{{dCookie.html}}</li>' +
+							'<li class="m-cookie-list-item" ng-class="isActive($index)" ng-repeat="dCookie in documentCookies | filter:filterByName">{{dCookie.html}}</li>' +
 						'</ol>' +
 					'</div>' +
 				'</div>';				
@@ -42,6 +42,7 @@ function showPopup(){
 		function _init(){
 			_updateCookies()
 			$scope.state = 'delete';
+			$scope.activeItem = 1;
 		}
 	  	
 		_init();
@@ -55,7 +56,7 @@ function showPopup(){
 			_updateCookies();
 			console.log('adding ' + name + ' : ' + value);
 		}
-		
+
 		$scope.deleteCookie = function(name){
 			cookieFactory.deleteCookieFromStorage(name);
 			_updateCookies();
@@ -64,8 +65,22 @@ function showPopup(){
 		}
 
 		$scope.submit = function(){
-
+			console.log('submit')
+			if($scope.cookieName && $scope.cookieValue) {
+				$scope.$apply(function(){
+					$scope.addCookie($scope.cookieName, $scope.cookieValue);
+					$scope.cookieName = '';
+					$scope.cookieValue = '';
+				});	
+			}
 		}
+
+		$scope.isActive = function(index){
+			if(index == $scope.activeItem - 1) {
+				return 'is-active';
+			}
+		}
+
 
 		$scope.$watch('state', function(newVal, oldVal) {
 			console.log('state changed ' + oldVal + ' to ' + newVal )
@@ -86,8 +101,64 @@ function showPopup(){
 		    });
 		    return false;
 		});
-	});
 
+		function numberKeyAction(value){
+			console.log(value)
+			$scope.$apply(function(){
+		      $scope.activeItem = value;
+		      switch($scope.state){
+		      	case 'add' :
+		      		console.log('get ' + value + ' from ' + 'add')
+		      		var name = cookieFactory.getCookiesFromStorage()[value - 1];
+		      		cookieFactory.deleteCookieFromStorage(name);
+		      	break;
+		      	case 'delete' :
+		      		console.log('get ' + value + ' from ' + 'delete')
+		      		console.log(cookieFactory.getCookies()[value - 1]);
+
+		      	break;  
+		      }
+
+		    });
+			
+		}
+
+		Mousetrap.bind('1', function(e){
+			numberKeyAction(1);
+		});
+
+		Mousetrap.bind('2', function(e){
+			numberKeyAction(2);
+		});
+
+		Mousetrap.bind('3', function(e){
+			numberKeyAction(3);
+		});
+
+		Mousetrap.bind('4', function(e){
+			numberKeyAction(4);
+		});
+
+		Mousetrap.bind('5', function(e){
+			numberKeyAction(5);
+		});
+
+		Mousetrap.bind('6', function(e){
+			numberKeyAction(6);
+		});
+
+		Mousetrap.bind('7', function(e){
+			numberKeyAction(7);
+		});
+
+		Mousetrap.bind('8', function(e){
+			numberKeyAction(8);
+		});
+
+		Mousetrap.bind('9', function(e){
+			numberKeyAction(9);
+		});
+	});	
 	App.directive('toggleFocus', function(){
 		return {
 			restrict : 'A',
@@ -112,6 +183,7 @@ function showPopup(){
 			restrict : 'A',
 			link : function (scope, elem, attrs) {
 				for(var i = 0; i < elem.length; i++){
+					console.log(elem[i])
 					elem[i].onkeydown = function(e){
 						if(e.keyCode == 13){
 							e.preventDefault();
@@ -128,43 +200,47 @@ function showPopup(){
 		function _toCookie(name, value){
 			return {'name' : name, 'value' : value, 'html' : name + ' : ' + value}
 		} 
+		var _getCookies = function() {
+			console.log('read cookies')
+			var cookies = string.split(';'),
+				ret = [];
+			for(var i = 0; i < cookies.length; i++) {
+				var cookie = cookies[i];
+				while (cookie.charAt(0)==' ') cookie = cookie.substring(1, cookie.length);
+				var name = cookie.substring(0, cookie.indexOf('=')),
+					value = cookie.substring(cookie.indexOf('=') + 1, cookie.length);
+
+				ret.push(_toCookie(name, value));
+			}
+			return ret;
+
+		},
+
+		_getCookiesFromStorage = function(){
+			var cookies = JSON.parse(localStorage.getItem('cookieExpressData')) || [];
+			return cookies;
+		},
+
+		_setCookieToStorage = function(name, value){
+			var newItem = _toCookie(name, value),
+				cookies = _getCookiesFromStorage();
+			cookies.push(newItem);
+			localStorage.setItem('cookieExpressData', JSON.stringify(cookies));
+		},
+
+		_deleteCookieFromStorage = function(name){
+			var cookies = _getCookiesFromStorage();
+			for(var i = 0; i < cookies.length; i++){
+				if(cookies[i].name === name) cookies.splice(i, 1)
+			}		
+			localStorage.setItem('cookieExpressData', JSON.stringify(cookies));
+		}
 
 		var cookieFactory = {
-			getCookies : function() {
-				console.log('read cookies')
-				var cookies = string.split(';'),
-					ret = [];
-				for(var i = 0; i < cookies.length; i++) {
-					var c = cookies[i];
-					while (c.charAt(0)==' ') c = c.substring(1,c.length);
-					var name = c.substring(0,c.indexOf('=')),
-						value = c.substring(c.indexOf('=') + 1,c.length);
-
-					ret.push(_toCookie(name, value));
-				}
-				return ret;
-
-			},
-
-			getCookiesFromStorage : function(){
-				var cookies = JSON.parse(localStorage.getItem('cookieExpressData')) || [];
-				return cookies;
-			},
-
-			setCookieToStorage : function(name, value){
-				var newItem = _toCookie(name, value),
-					cookies = getCookiesFromStorage();
-				cookies.push(newItem);
-				localStorage.setItem('cookieExpressData', JSON.stringify(cookies));
-			},
-
-			deleteCookieFromStorage : function(name){
-				var cookies = getCookiesFromStorage()
-				for(var i = 0; i < cookies.length; i++){
-					if(cookies[i].name === name) cookies.splice(i, 1)
-				}		
-				localStorage.setItem('cookieExpressData', JSON.stringify(cookies));
-			}
+			getCookies : _getCookies,
+			getCookiesFromStorage : _getCookiesFromStorage,
+			setCookieToStorage : _setCookieToStorage,
+			deleteCookieFromStorage : _deleteCookieFromStorage
 		}
 		return cookieFactory;
 	})
