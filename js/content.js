@@ -158,7 +158,8 @@ function showPopup(){
 		Mousetrap.bind('9', function(e){
 			numberKeyAction(9);
 		});
-	});	
+	});
+		
 	App.directive('toggleFocus', function(){
 		return {
 			restrict : 'A',
@@ -223,8 +224,16 @@ function showPopup(){
 
 		_setCookieToStorage = function(name, value){
 			var newItem = _toCookie(name, value),
-				cookies = _getCookiesFromStorage();
-			cookies.push(newItem);
+				cookies = _getCookiesFromStorage(),
+				added = false;
+			for(var i = 0; i < cookies.length; i++){
+				if(cookies[i].name === name) {
+					cookies.splice(i, 1);
+					added = true;
+				}
+			}
+			if(!added) cookies.push(newItem);
+
 			localStorage.setItem('cookieExpressData', JSON.stringify(cookies));
 		},
 
