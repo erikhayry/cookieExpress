@@ -1,0 +1,21 @@
+/* module form */
+/* line 4, ../sass/style.scss */
+.is-delete .m-form-value {
+  display: none;
+}
+
+/* module cookie list */
+/* line 15, ../sass/style.scss */
+.m-cookie-list {
+  opacity: 0.5;
+}
+
+/* line 24, ../sass/style.scss */
+.is-add .m-cookie-list:first-of-type {
+  opacity: 1;
+}
+
+/* line 30, ../sass/style.scss */
+.is-delete .m-cookie-list:last-of-type {
+  opacity: 1;
+}

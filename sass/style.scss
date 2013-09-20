@@ -1,0 +1,33 @@
+/* module form */
+
+.is-delete{
+  .m-form-value{
+    display: none;
+  }
+}
+
+
+
+
+/* module cookie list */
+
+
+.m-cookie-list{
+  opacity: 0.5;
+}
+
+.m-cookie-list-item{
+  
+}
+
+.is-add{
+  .m-cookie-list:first-of-type{
+    opacity: 1;
+  }
+}
+
+.is-delete{
+  .m-cookie-list:last-of-type{
+    opacity: 1;
+  }
+}
